@@ -15,46 +15,30 @@ import mindustry.mod.Mod
 import mindustry.ui.Styles
 import mindustry.ui.dialogs.BaseDialog
 
+
 class AutoTranslate: Mod() {
 
     init{
         Log.info("Loaded auto-translate mod.")
-
-        //listen for game load event
-        Events.on(ClientLoadEvent::class.java){
-            //show dialog upon startup
-            Time.runTask(10f){
-                BaseDialog("frog").apply{
-                    cont.apply{
-                        add("behold").row()
-                        //mod sprites are prefixed with the mod name (this mod is called 'example-kotlin-mod' in its config)
-                        image(Core.atlas.find("example-kotlin-mod-frog")).pad(20f).row()
-                        button("I see"){ hide() }.size(100f, 50f)
-                    }
-                    show()
-                }
-            }
-        }
     }
 
     override fun init() {
         if (Vars.headless) return
+
         // 初始化管理器
         TranslationManager.init()
+        // 监听聊天事件
+        Events.on(EventType.PlayerChatEvent::class.java) { event ->
+            // 自己的消息不翻译
+            if (event.player == Vars.player || Vars.player == null) return@on
+            handleTranslationAsync(event.player, event.message)
+        }
+
         // 为客户端建立设置菜单
         Events.on(ClientLoadEvent::class.java) {
             Core.app.post { buildSettingsUI() }
         }
-        // 监听聊天事件
-        Events.on(EventType.PlayerChatEvent::class.java) { event ->
-            event.player?: return@on
-            // 自己的消息不翻译
-            if (event.player == Vars.player || Vars.player == null) return@on
-            if (event.message.isNullOrEmpty()) return@on
 
-
-            handleTranslationAsync(event.player, event.message)
-        }
     }
 
     private fun handleTranslationAsync(sender: Player, originalMessage: String) {
@@ -65,13 +49,13 @@ class AutoTranslate: Mod() {
 
                 Core.app.post {
                     val formattedMessage = "${sender.name} [#80b4ff][翻][white]: $translatedText"
-                    Call.sendMessage(formattedMessage)
+                    Vars.player.sendMessage(formattedMessage)
                 }
             } catch (e: Exception) {
                 Log.err("翻译失败", e)
                 Core.app.post {
                     val errorMessage = "[#ff6961][error] ${sender.name}: $originalMessage"
-                    Call.sendMessage(errorMessage)
+                    Vars.player.sendMessage(errorMessage)
                 }
             }
         }
