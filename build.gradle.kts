@@ -33,7 +33,6 @@ task("jarAndroid") {
     dependsOn("jar")
 
     doLast {
-        val sdkRoot: String? = project.extra.get("sdkRoot") as? String
         if (sdkRoot.isNullOrEmpty() || !File(sdkRoot).exists()) {
             throw GradleException("No valid Android SDK found. Ensure that ANDROID_HOME is set to your Android SDK directory.")
         }
