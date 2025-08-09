@@ -47,8 +47,11 @@ class AutoTranslate: Mod() {
         }
         // 监听聊天事件
         Events.on(EventType.PlayerChatEvent::class.java) { event ->
+            event.player?: return@on
             // 自己的消息不翻译
-//            if (event.player == Vars.player || Vars.player == null) return@on
+            if (event.player == Vars.player || Vars.player == null) return@on
+            if (event.message.isNullOrEmpty()) return@on
+
 
             handleTranslationAsync(event.player, event.message)
         }
@@ -60,16 +63,8 @@ class AutoTranslate: Mod() {
                 // 使用管理器进行翻译
                 val translatedText = TranslationManager.translate(originalMessage)
 
-                // 如果翻译结果和原文相同（例如，引擎未配置或关闭），则不显示前缀
-                if (translatedText == originalMessage) {
-                    // 只显示原文即可，或者你也可以选择什么都不做，让原始消息显示
-                    // 但由于我们已经取消事件，这里需要重新发送格式化的原始消息
-                    val rawFormatted = "${sender.name}: $originalMessage"
-                    Core.app.post { Call.sendMessage(rawFormatted) }
-                    return@daemon
-                }
                 Core.app.post {
-                    val formattedMessage = "[#80b4ff][A->文] ${sender.name}[white]: $translatedText"
+                    val formattedMessage = "${sender.name} [#80b4ff][翻][white]: $translatedText"
                     Call.sendMessage(formattedMessage)
                 }
             } catch (e: Exception) {
