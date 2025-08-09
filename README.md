@@ -34,7 +34,7 @@
 
 1.  打开 Mindustry -> `设置` -> `游戏` -> `语言`，确保你的语言设置正确。
 2.  返回主菜单，选择 `Mod` -> `社区浏览`。
-3.  在搜索框中输入 `YOUR_MOD_NAME` (你的Mod名称) 并搜索。
+3.  在搜索框中输入 `auto-translate` 并搜索。
 4.  找到本 Mod 后，点击 `安装`。
 5.  安装完成后，重启游戏即可生效。
 
@@ -42,11 +42,8 @@
 
 1.  前往本项目的 [**Releases**](https://github.com/lhDream/auto-translate/releases) 页面。
 2.  下载最新版本的 `.jar` 文件。
-3.  将下载好的 `.jar` 文件放入您的 Mindustry `mods` 文件夹。
-    *   **Windows**: `%APPDATA%/Mindustry/mods/`
-    *   **Linux**: `~/.config/Mindustry/mods/` or `~/.local/share/Mindustry/mods/`
-    *   **macOS**: `~/Library/Application Support/Mindustry/mods/`
-    *   **Android**: `内部存储/Mindustry/mods/`
+3.  打开 Mindustry -> `Mod` -> `导入` -> `选择文件`，选择你刚刚下载的`.jar`文件。
+4.  找到本 Mod 后, 点击 `确定` 进行安装。
 4.  重启游戏即可生效。
 
 ## 🔧 配置
