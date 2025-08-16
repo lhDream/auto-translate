@@ -14,7 +14,12 @@ object MicrosoftFreeEngine : TranslationEngine {
 
     private val gson = Gson()
 
-    private var auth: String = ""
+    // 认证令牌
+    private var authToken: String? = null
+    // 令牌获取时间戳
+    private var tokenTimestamp: Long = 0L
+    // 缓存持续时间（5分钟，单位：毫秒）
+    private const val CACHE_DURATION_MS = 5 * 60 * 1000L
 
     // 请求体的数据类
     private data class RequestBody(val Text: String)
@@ -27,6 +32,12 @@ object MicrosoftFreeEngine : TranslationEngine {
      * 使用 synchronized 块确保在多线程环境下只执行一次网络请求。
      */
     override fun isConfigured(): Boolean {
+        // 检查当前令牌是否仍然有效
+        val isTokenValid = authToken != null && (System.currentTimeMillis() - tokenTimestamp < CACHE_DURATION_MS)
+        // 如果令牌有效，则无需任何操作
+        if (isTokenValid) {
+            return true
+        }
         try {
             Log.info("MicrosoftFreeEngine: 正在获取认证令牌...")
             Http.get("https://edge.microsoft.com/translate/auth")
@@ -34,9 +45,11 @@ object MicrosoftFreeEngine : TranslationEngine {
                 .block { response ->
                     val responseBody = response.resultAsString
                     if (response.status == Http.HttpStatus.OK && !responseBody.isNullOrEmpty()) {
-                        auth = responseBody
+                        authToken = responseBody
+                        tokenTimestamp = System.currentTimeMillis()
                         Log.info("MicrosoftFreeEngine: 认证令牌获取成功！")
                     } else {
+                        tokenTimestamp = 0L
                         throw IOException("获取微软翻译认证令牌失败: ${response.status} - $responseBody")
                     }
                 }
@@ -44,7 +57,7 @@ object MicrosoftFreeEngine : TranslationEngine {
             Log.err("MicrosoftFreeEngine: 获取认证令牌时发生网络或IO错误", e)
             return false
         }
-        return auth.isNotEmpty()
+        return authToken != null
     }
 
     override fun translate(text: String, targetLang: String): String {
@@ -63,7 +76,7 @@ object MicrosoftFreeEngine : TranslationEngine {
         try {
             Http.post(url)
                 .header("Content-Type", "application/json; charset=utf-8")
-                .header("Authorization", "Bearer $auth")
+                .header("Authorization", "Bearer $authToken")
                 .content(requestBodyJson)
                 .block { response ->
                     val responseBody = response.resultAsString
