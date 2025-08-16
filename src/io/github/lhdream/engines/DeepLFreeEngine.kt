@@ -8,14 +8,14 @@ import arc.util.Http
 import arc.util.Log
 import java.io.IOException
 
-object DeepLEngine : TranslationEngine {
-    override val id = "deepl"
-    override val displayName = "DeepL"
+object DeepLFreeEngine : TranslationEngine {
+    override val id = "deepl-free"
+    override val displayName = "DeepL Free Engine"
 
     private val gson = Gson()
 
     // DeepL 的数据结构
-    private data class ApiRequest(val text: List<String>, val target_lang: String)
+    private data class ApiRequest(val text: List<String>, val targetLang: String)
     private data class ApiResponse(val translations: List<Translation>)
     private data class Translation(val text: String)
 

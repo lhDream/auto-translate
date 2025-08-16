@@ -2,8 +2,8 @@ package io.github.lhdream.core
 
 import arc.Core
 import arc.util.Log
-import io.github.lhdream.engines.DeepLEngine
 import io.github.lhdream.engines.GoogleEngine
+import io.github.lhdream.engines.MicrosoftFreeEngine
 import io.github.lhdream.engines.NoneEngine
 
 object TranslationManager {
@@ -21,11 +21,13 @@ object TranslationManager {
     fun init() {
         // 注册所有可用的引擎
         register(NoneEngine)
+        register(MicrosoftFreeEngine)
         register(GoogleEngine)
-        register(DeepLEngine)
+        // 无法测试,暂时不做支持
+//        register(DeepLEngine)
 
         // 从设置中加载用户选择的引擎，默认为 "none"
-        val selectedEngineId = Core.settings.getString("default-translator", "none")
+        val selectedEngineId = Core.settings.getString("default-translator", MicrosoftFreeEngine.id)
         activeEngine = engines[selectedEngineId] ?: NoneEngine // 如果找不到，则使用 NoneEngine
         Log.info("[AutoTranslate] 当前翻译引擎: ${activeEngine.displayName}")
     }

@@ -7,6 +7,7 @@ import arc.scene.ui.layout.Table
 import arc.util.*
 import io.github.lhdream.core.TranslationManager
 import io.github.lhdream.ui.EngineDialog
+//import io.github.lhdream.utils.SecurityProviderManager
 import mindustry.Vars
 import mindustry.game.EventType
 import mindustry.game.EventType.ClientLoadEvent
@@ -23,6 +24,7 @@ class AutoTranslate: Mod() {
 
     override fun init() {
         if (Vars.headless) return
+        System.setProperty("https.protocols", "TLSv1.2,TLSv1.3")
 
         // 初始化管理器
         TranslationManager.init()
@@ -81,7 +83,7 @@ class AutoTranslate: Mod() {
             table.row()
             // --- 目标语言设置 ---
             table.add("主要语言").padTop(8f)
-            table.field(TranslationManager.targetLanguage) { lang ->
+            table.field(TranslationManager.mainLanguage) { lang ->
                 Core.settings.put("translation-main-lang", lang.trim().lowercase())
             }.width(220f).padLeft(10f).get()
             table.row()
@@ -100,11 +102,6 @@ class AutoTranslate: Mod() {
             }.width(400f).padLeft(10f).get()
             table.row()
 
-            table.add("DeepL API Key").padTop(8f)
-            table.field(Core.settings.getString("deepl-api-key", ""), Styles.areaField) { key ->
-                Core.settings.put("deepl-api-key", key.trim())
-            }.width(400f).padLeft(10f).get()
-            table.row()
         }
     }
 
@@ -120,6 +117,7 @@ class AutoTranslate: Mod() {
                     val translateText = TranslationManager.translate(text.trim(), TranslationManager.targetLanguage)
                     Core.app.post {
                         textField.text = translateText
+                        Vars.ui.chatfrag.updateCursor()
                     }
                 }
 
