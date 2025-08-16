@@ -11,8 +11,12 @@ object TranslationManager {
     private lateinit var activeEngine: TranslationEngine
 
     // 目标语言也可以从设置中读取
+    val mainLanguage: String
+        get() = Core.settings.getString("translation-main-lang", "zh")
+
+    // 目标语言也可以从设置中读取
     val targetLanguage: String
-        get() = Core.settings.getString("translation-target-lang", "zh")
+        get() = Core.settings.getString("translation-target-lang", "en")
 
     fun init() {
         // 注册所有可用的引擎
@@ -40,7 +44,7 @@ object TranslationManager {
         Log.info("[AutoTranslate] 翻译引擎已切换为: ${activeEngine.displayName}")
     }
 
-    fun translate(text: String): String {
+    fun translate(text: String, targetLanguage: String = this.mainLanguage): String {
         // 如果当前引擎是 NoneEngine 或未配置，则不翻译
         if (activeEngine.id == "none" || !activeEngine.isConfigured()) {
             if (!activeEngine.isConfigured() && activeEngine.id != "none") {
@@ -48,7 +52,6 @@ object TranslationManager {
             }
             return text
         }
-
         // 调用当前激活引擎的翻译方法
         return activeEngine.translate(text, targetLanguage)
     }

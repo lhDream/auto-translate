@@ -2,6 +2,7 @@ package io.github.lhdream
 
 import arc.Core
 import arc.Events
+import arc.scene.ui.TextField
 import arc.scene.ui.layout.Table
 import arc.util.*
 import io.github.lhdream.core.TranslationManager
@@ -9,11 +10,9 @@ import io.github.lhdream.ui.EngineDialog
 import mindustry.Vars
 import mindustry.game.EventType
 import mindustry.game.EventType.ClientLoadEvent
-import mindustry.gen.Call
 import mindustry.gen.Player
 import mindustry.mod.Mod
 import mindustry.ui.Styles
-import mindustry.ui.dialogs.BaseDialog
 
 
 class AutoTranslate: Mod() {
@@ -39,6 +38,8 @@ class AutoTranslate: Mod() {
             Core.app.post { buildSettingsUI() }
         }
 
+        // 监听聊天消息框, 增加连续三个空格翻译
+        buildChatListener()
     }
 
     private fun handleTranslationAsync(sender: Player, originalMessage: String) {
@@ -79,6 +80,12 @@ class AutoTranslate: Mod() {
 
             table.row()
             // --- 目标语言设置 ---
+            table.add("主要语言").padTop(8f)
+            table.field(TranslationManager.targetLanguage) { lang ->
+                Core.settings.put("translation-main-lang", lang.trim().lowercase())
+            }.width(220f).padLeft(10f).get()
+            table.row()
+            // --- 目标语言设置 ---
             table.add("目标语言").padTop(8f)
             table.field(TranslationManager.targetLanguage) { lang ->
                 Core.settings.put("translation-target-lang", lang.trim().lowercase())
@@ -101,5 +108,23 @@ class AutoTranslate: Mod() {
         }
     }
 
+    private fun buildChatListener(){
+        val javaClass = Vars.ui.chatfrag.javaClass
+        val nameField = javaClass.getDeclaredField("chatfield")
+        nameField.isAccessible = true
+        val chatfield = nameField.get(Vars.ui.chatfrag) as TextField
+        chatfield.setTextFieldListener { textField, c ->
+            val text = textField.text
+            if(text.length > 3 && text.endsWith("   ")){
+                Threads.daemon("translator-local" + System.currentTimeMillis()) {
+                    val translateText = TranslationManager.translate(text.trim(), TranslationManager.targetLanguage)
+                    Core.app.post {
+                        textField.text = translateText
+                    }
+                }
+
+            }
+        }
+    }
 
 }
