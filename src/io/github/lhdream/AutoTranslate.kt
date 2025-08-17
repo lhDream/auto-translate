@@ -6,8 +6,8 @@ import arc.scene.ui.TextField
 import arc.scene.ui.layout.Table
 import arc.util.*
 import io.github.lhdream.core.TranslationManager
+import io.github.lhdream.engines.NoneEngine
 import io.github.lhdream.ui.EngineDialog
-//import io.github.lhdream.utils.SecurityProviderManager
 import mindustry.Vars
 import mindustry.game.EventType
 import mindustry.game.EventType.ClientLoadEvent
@@ -24,8 +24,6 @@ class AutoTranslate: Mod() {
 
     override fun init() {
         if (Vars.headless) return
-        System.setProperty("https.protocols", "TLSv1.2,TLSv1.3")
-
         // 初始化管理器
         TranslationManager.init()
         // 监听聊天事件
@@ -69,14 +67,15 @@ class AutoTranslate: Mod() {
             table.background(Styles.black6) // 给设置区域加个背景，更美观
 
             table.add("翻译引擎").padLeft(10f)
-            val currentEngineId = Core.settings.getString("default-translator", "none")
+            val currentEngineId = Core.settings.getString("default-translator", NoneEngine.id)
             val engineButton = table.button(currentEngineId, Styles.flatt) {}
                 .width(220f).get()
 
             engineButton.clicked {
                 EngineDialog{
-                    engineButton.setText(Core.settings.getString("default-translator", "none"))
-                    engineButton.draw()
+                    Log.info("回调翻译引擎id ;${it}")
+                    engineButton.setText(it)
+                    table.pack()
                 }.show()
             }
 

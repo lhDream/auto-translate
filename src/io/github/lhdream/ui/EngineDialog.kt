@@ -10,7 +10,7 @@ import mindustry.ui.Styles
 import mindustry.ui.dialogs.BaseDialog
 
 class EngineDialog(
-    private val func: Runnable = Runnable { }
+    private val func: (String) -> Unit = { }
 ): BaseDialog("engine") {
 
     init {
@@ -30,7 +30,8 @@ class EngineDialog(
             button.clicked {
                 if (def() == engine.key) return@clicked
                 Core.settings.put("default-translator", engine.key)
-                closeOnBack(func)
+                TranslationManager.setActiveEngine(engine.key)
+                func(engine.key)
             }
             engines.add(button)
                 .group(group)

@@ -48,7 +48,7 @@ object TranslationManager {
 
     fun translate(text: String, targetLanguage: String = this.mainLanguage): String {
         // 如果当前引擎是 NoneEngine 或未配置，则不翻译
-        if (activeEngine.id == "none" || !activeEngine.isConfigured()) {
+        if (activeEngine.id == NoneEngine.id || !activeEngine.isConfigured()) {
             if (!activeEngine.isConfigured() && activeEngine.id != "none") {
                 Log.warn("[AutoTranslate] 引擎 '${activeEngine.displayName}' 未配置 API Key，跳过翻译。")
             }
