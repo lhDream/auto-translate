@@ -8,7 +8,7 @@ import arc.util.Http
 import arc.util.Log
 import java.io.IOException
 
-object DeepLFreeEngine : TranslationEngine {
+object DeepLEngine : TranslationEngine {
     override val id = "deepl-free"
     override val displayName = "DeepL Free Engine"
 

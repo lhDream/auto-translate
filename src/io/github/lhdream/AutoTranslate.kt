@@ -101,6 +101,12 @@ class AutoTranslate: Mod() {
             }.width(400f).padLeft(10f).get()
             table.row()
 
+            table.add("DeepL API Key").padTop(8f)
+            table.field(Core.settings.getString("deepl-api-key", ""), Styles.areaField) { key ->
+                Core.settings.put("deepl-api-key", key.trim())
+            }.width(400f).padLeft(10f).get()
+            table.row()
+
         }
     }
 
