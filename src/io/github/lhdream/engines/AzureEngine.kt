@@ -5,14 +5,12 @@ import arc.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.github.lhdream.core.TranslationEngine
-import io.github.lhdream.expansion.HttpRequest
-import io.github.lhdream.expansion.withTls12And13
 import java.io.IOException
 
-object MicrosoftFreeEngine : TranslationEngine {
+object AzureEngine : TranslationEngine {
 
-    override val id: String = "microsoft-free"
-    override val displayName: String = "Microsoft Free Engine"
+    override val id: String = "azure"
+    override val displayName: String = "Azure Engine"
 
     private val gson = Gson()
 
@@ -76,34 +74,33 @@ object MicrosoftFreeEngine : TranslationEngine {
         val url = "https://api-edge.cognitive.microsofttranslator.com/translate?to=${targetLang}&api-version=3.0&includeSentenceLength=true"
 
         try {
-            withTls12And13 {
-                HttpRequest.post(url)
-                    .header("Content-Type", "application/json; charset=utf-8")
-                    .header("Authorization", "Bearer $authToken")
-                    .body(requestBodyJson)
-                    .withTlsPatcher()
-                    .execute()
-                    .let{ response ->
-                        val responseBody = response.body
-                        if (!response.isSuccess) {
-                            Log.info("翻译请求失败: ${response.statusCode} - $responseBody - ${response.error}")
-                            return@let
-                        }
-                        val listType = object : TypeToken<List<TranslationResponse>>() {}.type
-                        val apiResponse: List<TranslationResponse> = gson.fromJson(responseBody, listType)
-                        // 提取翻译结果
-                        translatedText = apiResponse.firstOrNull()
-                            ?.translations?.firstOrNull()
-                            ?.text
-                            ?: "" // 如果找不到结果，返回空字符串
+            Http.post(url)
+                .header("Content-Type", "application/json; charset=utf-8")
+                .header("Authorization", "Bearer $authToken")
+                .content(requestBodyJson)
+                .block { response ->
+                    val responseBody = response.resultAsString
 
-                        if (translatedText.isNotEmpty()) {
-                            Log.info("MicrosoftFreeEngine: 翻译成功！")
-                        } else {
-                            Log.warn("MicrosoftFreeEngine: API 响应中未找到翻译结果。响应体: $responseBody")
-                        }
+                    if (response.status != Http.HttpStatus.OK || responseBody.isNullOrEmpty()) {
+                        Log.info("翻译请求失败: ${response.status} - $responseBody")
+                        return@block
                     }
-            }
+
+                    val listType = object : TypeToken<List<TranslationResponse>>() {}.type
+                    val apiResponse: List<TranslationResponse> = gson.fromJson(responseBody, listType)
+
+                    // 提取翻译结果
+                    translatedText = apiResponse.firstOrNull()
+                        ?.translations?.firstOrNull()
+                        ?.text
+                        ?: "" // 如果找不到结果，返回空字符串
+
+                    if (translatedText.isNotEmpty()) {
+                        Log.info("MicrosoftFreeEngine: 翻译成功！")
+                    } else {
+                        Log.warn("MicrosoftFreeEngine: API 响应中未找到翻译结果。响应体: $responseBody")
+                    }
+                }
         } catch (e: Exception) {
             Log.err("MicrosoftFreeEngine: 翻译过程中发生错误", e)
             // 出现异常时也返回空字符串
@@ -112,4 +109,17 @@ object MicrosoftFreeEngine : TranslationEngine {
         return translatedText
     }
 
+    private fun <T> withTls12(block: () -> T): T {
+        val originalProtocols = System.getProperty("https.protocols")
+        try {
+            System.setProperty("https.protocols", "TLSv1.2,TLSv1.3")
+            return block()
+        } finally {
+            if (originalProtocols == null) {
+                System.clearProperty("https.protocols")
+            } else {
+                System.setProperty("https.protocols", originalProtocols)
+            }
+        }
+    }
 }

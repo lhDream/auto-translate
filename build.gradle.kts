@@ -21,6 +21,8 @@ repositories {
 dependencies {
     compileOnly("com.github.Anuken.Arc:arc-core:$mindustryVersion")
     compileOnly("com.github.Anuken.Mindustry:core:$mindustryVersion")
+    testImplementation("com.github.Anuken.Arc:arc-core:${mindustryVersion}")
+    testImplementation("com.github.Anuken.Mindustry:core:${mindustryVersion}")
     implementation("com.google.code.gson:gson:2.10.1")
 }
 

@@ -17,6 +17,6 @@ description: "A Mindustry auto translate mod."
 version: 1.0
 
 #the minimum game build required to run this mod
-minGameVersion: 136
+minGameVersion: 147
 java: true
 hidden: true

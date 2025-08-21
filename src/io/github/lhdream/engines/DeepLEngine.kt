@@ -4,18 +4,18 @@ import io.github.lhdream.core.TranslationEngine
 
 import arc.Core
 import com.google.gson.Gson
-import arc.util.Http
 import arc.util.Log
-import java.io.IOException
+import com.google.gson.annotations.SerializedName
+import io.github.lhdream.expansion.HttpRequest
 
 object DeepLEngine : TranslationEngine {
-    override val id = "deepl-free"
-    override val displayName = "DeepL Free Engine"
+    override val id = "deepl"
+    override val displayName = "DeepL Engine"
 
     private val gson = Gson()
 
     // DeepL 的数据结构
-    private data class ApiRequest(val text: List<String>, val targetLang: String)
+    private data class ApiRequest(val text: List<String>,@SerializedName("target_lang") val targetLang: String)
     private data class ApiResponse(val translations: List<Translation>)
     private data class Translation(val text: String)
 
@@ -30,29 +30,27 @@ object DeepLEngine : TranslationEngine {
     override fun translate(text: String, targetLang: String): String {
         if (!isConfigured()) throw IllegalStateException("DeepL API Key 未设置。")
 
-        val apiUrl = "https://api-free.deepl.com/v2/translate"
-        val requestBody = gson.toJson(ApiRequest(listOf(text), targetLang.uppercase()))
+        val apiUrl = "https://api.deepl.com/v2/translate"
+        val requestBody = gson.toJson(ApiRequest(listOf(text), targetLang))
         var translatedText = ""
 
-        Http.post(apiUrl)
+        val result = HttpRequest.post(apiUrl)
+            .header("Content-Type", "application/json")
             .header("Authorization", "DeepL-Auth-Key $apiKey")
-            .header("Content-Type", "application/json; charset=utf-8")
-            .content(requestBody)
-            .block { response ->
-                try {
-                    val responseBody = response.resultAsString
-                    if (response.status != Http.HttpStatus.OK || responseBody.isNullOrEmpty()) {
-                        throw IOException("请求失败: ${response.status} - $responseBody")
-                    }
-                    val apiResponse = gson.fromJson(responseBody, ApiResponse::class.java)
-                    translatedText = apiResponse.translations.firstOrNull()?.text
-                        ?: throw IllegalStateException("API 响应中未找到翻译结果。")
-                    Log.info("DeepLEngine: 翻译成功！")
-                } catch (e: Exception) {
-                    Log.err("DeepLEngine: 响应处理失败", e)
-                }
-            }
+            .body(requestBody)
+            .withTlsPatcher()
+            .execute()
 
+        if(result.isSuccess){
+            val apiResponse = gson.fromJson(result.body, ApiResponse::class.java)
+            translatedText = apiResponse.translations.firstOrNull()?.text
+                ?: throw IllegalStateException("API 响应中未找到翻译结果。")
+            Log.info("DeepLEngine: 翻译成功！")
+        }else{
+            Log.info("请求失败: ${result.statusCode} - ${result.body}")
+            throw result.error as Throwable
+        }
         return translatedText
     }
+
 }
