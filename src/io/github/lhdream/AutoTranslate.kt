@@ -107,6 +107,12 @@ class AutoTranslate: Mod() {
             }.width(400f).padLeft(10f).get()
             table.row()
 
+            table.add("Azure API Key").padTop(8f)
+            table.field(Core.settings.getString("azure-api-key", ""), Styles.areaField) { key ->
+                Core.settings.put("azure-api-key", key.trim())
+            }.width(400f).padLeft(10f).get()
+            table.row()
+
         }
     }
 
