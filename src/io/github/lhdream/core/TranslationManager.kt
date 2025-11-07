@@ -3,6 +3,7 @@ package io.github.lhdream.core
 import arc.Core
 import arc.util.Log
 import io.github.lhdream.engines.AzureEngine
+import io.github.lhdream.engines.BaiduEngine
 import io.github.lhdream.engines.DeepLEngine
 import io.github.lhdream.engines.GoogleEngine
 import io.github.lhdream.engines.MicrosoftFreeEngine
@@ -27,6 +28,7 @@ object TranslationManager {
         register(GoogleEngine)
         register(DeepLEngine)
         register(AzureEngine)
+        register(BaiduEngine)
 
         // 从设置中加载用户选择的引擎，默认为 "none"
         val selectedEngineId = Core.settings.getString("default-translator", MicrosoftFreeEngine.id)

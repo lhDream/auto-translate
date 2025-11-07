@@ -113,6 +113,18 @@ class AutoTranslate: Mod() {
             }.width(400f).padLeft(10f).get()
             table.row()
 
+            table.add("Baidu APP ID").padTop(8f)
+            table.field(Core.settings.getString("baidu-app-id", ""), Styles.areaField) { id ->
+                Core.settings.put("baidu-app-id", id.trim())
+            }.width(400f).padLeft(10f).get()
+            table.row()
+
+            table.add("Baidu API Key").padTop(8f)
+            table.field(Core.settings.getString("baidu-api-key", ""), Styles.areaField) { key ->
+                Core.settings.put("baidu-api-key", key.trim())
+            }.width(400f).padLeft(10f).get()
+            table.row()
+
         }
     }
 
