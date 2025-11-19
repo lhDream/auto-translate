@@ -8,6 +8,7 @@ import io.github.lhdream.engines.DeepLEngine
 import io.github.lhdream.engines.GoogleEngine
 import io.github.lhdream.engines.MicrosoftFreeEngine
 import io.github.lhdream.engines.NoneEngine
+import io.github.lhdream.engines.TencentEngine
 
 object TranslationManager {
     val engines = mutableMapOf<String, TranslationEngine>()
@@ -29,6 +30,7 @@ object TranslationManager {
         register(DeepLEngine)
         register(AzureEngine)
         register(BaiduEngine)
+        register(TencentEngine)
 
         // 从设置中加载用户选择的引擎，默认为 "none"
         val selectedEngineId = Core.settings.getString("default-translator", MicrosoftFreeEngine.id)

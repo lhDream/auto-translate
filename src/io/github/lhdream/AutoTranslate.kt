@@ -125,6 +125,24 @@ class AutoTranslate: Mod() {
             }.width(400f).padLeft(10f).get()
             table.row()
 
+            table.add("Tencent SecretId").padTop(8f)
+            table.field(Core.settings.getString("tencent-secret-id", ""), Styles.areaField) { id ->
+                Core.settings.put("tencent-secret-id", id.trim())
+            }.width(400f).padLeft(10f).get()
+            table.row()
+
+            table.add("Tencent SecretKey").padTop(8f)
+            table.field(Core.settings.getString("tencent-secret-key", ""), Styles.areaField) { key ->
+                Core.settings.put("tencent-secret-key", key.trim())
+            }.width(400f).padLeft(10f).get()
+            table.row()
+
+            table.add("Tencent Region").padTop(8f)
+            table.field(Core.settings.getString("tencent-region", "ap-guangzhou"), Styles.areaField) { region ->
+                Core.settings.put("tencent-region", region.trim())
+            }.width(400f).padLeft(10f).get()
+            table.row()
+
         }
     }
 
