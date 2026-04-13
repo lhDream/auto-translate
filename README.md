@@ -12,19 +12,12 @@
 
 ## ✨ 功能特性
 
-*   **实时翻译**: 自动翻译游戏内的公共聊天信息。
-*   **多引擎支持**: 内置多种主流翻译引擎，您可以根据需求和喜好自由切换。
-*   **高度可定制**: 支持设置目标翻译语言、排除特定玩家或语言等。
-*   **易于扩展**: 模块化的设计，便于未来添加更多新的翻译服务。
-*   **低延迟**: 经过优化，力求在不影响游戏体验的前提下提供快速翻译。
-<!--
-## 📸 效果截图
-
-*(在此处插入一张或多张展示 Mod 效果的截图)*
-
-![聊天翻译效果图](https://your-image-host.com/path/to/screenshot.png)
-> *一个清晰的截图能让用户快速了解 Mod 的用途。*
--->
+*   **实时翻译**: 自动翻译游戏内其他玩家发送的公共聊天信息。
+*   **本地翻译**: 在聊天框输入消息后，末尾加上三个空格即可触发翻译，将您输入的消息翻译为目标语言后再发送。
+*   **多引擎支持**: 内置 8 种翻译引擎，涵盖免费方案和主流商业翻译服务。
+*   **异步处理**: 翻译请求在后台线程执行，不阻塞游戏主线程。
+*   **TLS 兼容**: 对旧版 Java 环境提供 TLS 1.2/1.3 支持，确保网络请求正常。
+*   **跨平台**: 支持 Mindustry 桌面版和安卓版。
 
 ## 🚀 安装与使用
 
@@ -44,34 +37,53 @@
 2.  下载最新版本的 `.jar` 文件。
 3.  打开 Mindustry -> `Mod` -> `导入` -> `选择文件`，选择你刚刚下载的`.jar`文件。
 4.  找到本 Mod 后, 点击 `确定` 进行安装。
-4.  重启游戏即可生效。
+5.  重启游戏即可生效。
 
 ## 🔧 配置
 
-安装并启用 Mod 后，您可以在游戏的 `设置` -> `Mod 设置` 中找到本 Mod 的专属配置页面。
+安装并启用 Mod 后，您可以在游戏的 `设置` -> `Mod 设置` -> `自动翻译设置` 中找到本 Mod 的专属配置页面。
 
-在这里，您可以:
-*   **选择翻译引擎**: 从下拉列表中选择您偏好的翻译服务 (如 Google, DeepL)。
-*   **设置目标语言**: 设置您希望将聊天信息翻译成的语言。
-*   **配置 API 密钥**: 部分翻译服务 (如 DeepL) 可能需要您提供个人的 API Key 以获得更佳的翻译质量或更高的配额。
-*   **管理黑名单**: 添加不需要翻译的玩家名称或语言代码。
+### 基本设置
+
+| 设置项 | 说明 | 默认值 |
+|--------|------|--------|
+| 翻译引擎 | 从列表中选择翻译服务 | Microsoft Free |
+| 主要语言 | 接收到的消息翻译为此语言 | `zh` |
+| 目标语言 | 本地翻译（三个空格触发）的目标语言 | `en` |
+
+### API 密钥设置
+
+| 设置项 | 对应引擎 | 说明 |
+|--------|----------|------|
+| Google API Key | Google 翻译 | [Google Cloud Translation API](https://cloud.google.com/translate) 密钥 |
+| DeepL API Key | DeepL | [DeepL API](https://www.deepl.com/pro-api) 密钥 |
+| Azure API Key | Azure | [Azure Translator](https://azure.microsoft.com/services/cognitive-services/translator/) 密钥 |
+| Baidu APP ID | 百度翻译 | [百度翻译开放平台](https://fanyi-api.baidu.com/) 应用 ID |
+| Baidu API Key | 百度翻译 | 百度翻译 API 密钥 |
+| Tencent SecretId | 腾讯翻译 | [腾讯云机器翻译](https://cloud.tencent.com/product/tmt) 密钥 ID |
+| Tencent SecretKey | 腾讯翻译 | 腾讯云 API 密钥 |
+| Tencent Region | 腾讯翻译 | 腾讯云地域 | `ap-guangzhou` |
+| OpenAI API Key | OpenAI | OpenAI API 密钥 |
+| OpenAI Base URL | OpenAI | API 地址 | `https://api.openai.com/v1/` |
+| OpenAI Model | OpenAI | 模型名称 | `gpt-4o-mini` |
 
 ## 🌐 支持的翻译引擎
 
-我们目前支持以下翻译引擎，并将持续增加：
+| 引擎 | 需要配置 | 说明 |
+|------|---------|------|
+| **None** | 无 | 不进行翻译，关闭翻译功能 |
+| **Microsoft Free** | 无 | 使用微软 Edge 翻译接口，**免费且无需 API Key**，开箱即用 |
+| **Google 翻译** | API Key | Google Cloud Translation API |
+| **DeepL** | API Key | DeepL Translation API |
+| **Azure** | API Key | Azure Cognitive Services Translator |
+| **百度翻译** | APP ID + API Key | 百度翻译开放平台 API |
+| **腾讯翻译** | SecretId + SecretKey | 腾讯云机器翻译 API |
+| **OpenAI** | API Key | OpenAI GPT 翻译，支持自定义 Base URL（兼容第三方 API）和模型名称 |
 
-*   ✅ **Google 翻译**: 需在设置中填入您的 Google API Key 以获得高质量翻译。
-*   ✅ **DeepL**: 需在设置中填入您的 DeepL API Key 以获得高质量翻译。
-*   ☑️ **有道翻译** (计划中)
-*   ☑️ **百度翻译** (计划中)
-
-如果您希望我们支持其他翻译服务，欢迎通过 [Issues](https://github.com/lhDream/auto-translate/issues) 提出建议！
+> 💡 **提示**: 如果您只需要免费使用，选择 **Microsoft Free** 引擎即可，无需任何配置。它作为默认引擎，安装后即可直接使用。
 
 ## 🗺️ 路线图 (Roadmap)
 
-我们对这个项目有一些未来的规划：
-
-*   [ ] 允许用户自定义翻译接口地址。
 *   [ ] 提供本地化 UI，让 Mod 设置界面支持多语言。
 *   [ ] 持续优化性能，减少网络延迟。
 
@@ -82,11 +94,12 @@
 *   **报告 Bug**: 如果您在使用中遇到任何问题，请通过 [**Issues**](https://github.com/lhDream/auto-translate/issues) 详细描述您的问题。
 *   **功能建议**: 有什么好点子吗？同样可以通过 [**Issues**](https://github.com/lhDream/auto-translate/issues) 告诉我们。
 *   **代码贡献**: 如果您想直接参与开发，请遵循以下步骤：
-    1.  Fork 本仓库。
-    2.  创建您的特性分支 (`git checkout -b feature/AmazingFeature`)。
-    3.  提交您的更改 (`git commit -m 'Add some AmazingFeature'`)。
-    4.  将您的分支推送到远程仓库 (`git push origin feature/AmazingFeature`)。
-    5.  创建并提交一个 Pull Request。
+    1.  Fork [**lhDream/auto-translate**](https://github.com/lhDream/auto-translate) 仓库。
+    2.  克隆你 Fork 的仓库 (`git clone https://github.com/<your-username>/auto-translate.git`)。
+    3.  创建特性分支 (`git checkout -b feature/your-feature`)。
+    4.  提交更改 (`git commit -m 'Add your feature'`)。
+    5.  推送到你的 Fork (`git push origin feature/your-feature`)。
+    6.  在 [**lhDream/auto-translate**](https://github.com/lhDream/auto-translate/pulls) 创建 Pull Request。
 
 ## 📄 许可证 (License)
 
