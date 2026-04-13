@@ -143,6 +143,24 @@ class AutoTranslate: Mod() {
             }.width(400f).padLeft(10f).get()
             table.row()
 
+            table.add("OpenAI API Key").padTop(8f)
+            table.field(Core.settings.getString("openai-api-key", ""), Styles.areaField) { key ->
+                Core.settings.put("openai-api-key", key.trim())
+            }.width(400f).padLeft(10f).get()
+            table.row()
+
+            table.add("OpenAI Base URL").padTop(8f)
+            table.field(Core.settings.getString("openai-base-url", "https://api.openai.com/v1/"), Styles.areaField) { url ->
+                Core.settings.put("openai-base-url", url.trim())
+            }.width(400f).padLeft(10f).get()
+            table.row()
+
+            table.add("OpenAI Model").padTop(8f)
+            table.field(Core.settings.getString("openai-model-name", "gpt-4o-mini"), Styles.areaField) { model ->
+                Core.settings.put("openai-model-name", model.trim())
+            }.width(400f).padLeft(10f).get()
+            table.row()
+
         }
     }
 

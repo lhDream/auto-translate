@@ -23,7 +23,12 @@ dependencies {
     compileOnly("com.github.Anuken.Mindustry:core:$mindustryVersion")
     testImplementation("com.github.Anuken.Arc:arc-core:${mindustryVersion}")
     testImplementation("com.github.Anuken.Mindustry:core:${mindustryVersion}")
+    val langchain4jVersion = "1.13.0"
+    implementation("dev.langchain4j:langchain4j:$langchain4jVersion")
+    implementation("dev.langchain4j:langchain4j-open-ai:$langchain4jVersion")
+
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
