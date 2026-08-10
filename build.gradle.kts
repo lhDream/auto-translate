@@ -21,15 +21,10 @@ repositories {
 dependencies {
     compileOnly("com.github.Anuken.Arc:arc-core:$mindustryVersion")
     compileOnly("com.github.Anuken.Mindustry:core:$mindustryVersion")
-    testImplementation("com.github.Anuken.Arc:arc-core:${mindustryVersion}")
-    testImplementation("com.github.Anuken.Mindustry:core:${mindustryVersion}")
     implementation("com.google.code.gson:gson:2.10.1")
     val coroutinesVersion = "1.6.4"
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation(kotlin("stdlib-jdk8"))
-
-    testImplementation(kotlin("test"))
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
