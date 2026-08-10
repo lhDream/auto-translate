@@ -1,6 +1,6 @@
-package io.github.lhdream.engines
+package io.github.lhdream.data.remote.translation
 
-import io.github.lhdream.core.TranslationEngine
+import io.github.lhdream.domain.translation.TranslationEngine
 
 import arc.Core
 import arc.util.Http

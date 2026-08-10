@@ -1,12 +1,12 @@
-package io.github.lhdream.engines
+package io.github.lhdream.data.remote.translation
 
-import io.github.lhdream.core.TranslationEngine
+import io.github.lhdream.domain.translation.TranslationEngine
 
 import arc.Core
 import com.google.gson.Gson
 import arc.util.Log
 import com.google.gson.annotations.SerializedName
-import io.github.lhdream.expansion.HttpRequest
+import io.github.lhdream.infrastructure.network.HttpRequest
 
 object DeepLEngine : TranslationEngine {
     override val id = "deepl"

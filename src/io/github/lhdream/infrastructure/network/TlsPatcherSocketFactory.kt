@@ -1,4 +1,4 @@
-package io.github.lhdream.factory
+package io.github.lhdream.infrastructure.network
 
 import java.io.IOException
 import java.net.InetAddress

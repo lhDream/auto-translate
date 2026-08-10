@@ -1,15 +1,17 @@
-package io.github.lhdream.core
+package io.github.lhdream.domain.translation
 
 import arc.Core
 import arc.util.Log
-import io.github.lhdream.engines.AzureEngine
-import io.github.lhdream.engines.BaiduEngine
-import io.github.lhdream.engines.DeepLEngine
-import io.github.lhdream.engines.GoogleEngine
-import io.github.lhdream.engines.MicrosoftFreeEngine
-import io.github.lhdream.engines.NoneEngine
-import io.github.lhdream.engines.OpenAIEngine
-import io.github.lhdream.engines.TencentEngine
+import io.github.lhdream.data.remote.translation.AzureEngine
+import io.github.lhdream.data.remote.translation.BaiduEngine
+import io.github.lhdream.data.remote.translation.DeepLEngine
+import io.github.lhdream.data.remote.translation.GoogleEngine
+import io.github.lhdream.data.remote.translation.MicrosoftFreeEngine
+import io.github.lhdream.data.remote.translation.NoneEngine
+import io.github.lhdream.data.remote.translation.OpenAIEngine
+import io.github.lhdream.data.remote.translation.TencentEngine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 object TranslationManager {
     val engines = mutableMapOf<String, TranslationEngine>()
@@ -62,5 +64,23 @@ object TranslationManager {
         }
         // 调用当前激活引擎的翻译方法
         return activeEngine.translate(text, targetLanguage)
+    }
+
+    suspend fun translateAsync(text: String, targetLanguage: String = this.mainLanguage): String {
+        val engine = activeEngine
+        if (engine.id == NoneEngine.id || !engine.isConfigured()) {
+            if (!engine.isConfigured() && engine.id != NoneEngine.id) {
+                Log.warn("[AutoTranslate] 引擎 '${engine.displayName}' 未配置 API Key，跳过翻译。")
+            }
+            return text
+        }
+
+        return if (engine === OpenAIEngine) {
+            OpenAIEngine.translateAsync(text, targetLanguage)
+        } else {
+            withContext(Dispatchers.IO) {
+                engine.translate(text, targetLanguage)
+            }
+        }
     }
 }

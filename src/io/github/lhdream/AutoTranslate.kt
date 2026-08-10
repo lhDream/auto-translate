@@ -5,9 +5,15 @@ import arc.Events
 import arc.scene.ui.TextField
 import arc.scene.ui.layout.Table
 import arc.util.*
-import io.github.lhdream.core.TranslationManager
-import io.github.lhdream.engines.NoneEngine
-import io.github.lhdream.ui.EngineDialog
+import io.github.lhdream.data.remote.translation.NoneEngine
+import io.github.lhdream.domain.translation.TranslationManager
+import io.github.lhdream.presentation.ui.EngineDialog
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import mindustry.Vars
 import mindustry.game.EventType
 import mindustry.game.EventType.ClientLoadEvent
@@ -21,8 +27,10 @@ class AutoTranslate: Mod() {
     companion object {
         private const val TRIGGER_SUFFIX = "   "
         private const val MIN_TEXT_LENGTH = 3
-        private val threadCounter = java.util.concurrent.atomic.AtomicInteger(0)
     }
+
+    private val translationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var chatInputJob: Job? = null
 
     init{
         Log.info("Loaded auto-translate mod.")
@@ -49,15 +57,16 @@ class AutoTranslate: Mod() {
     }
 
     private fun handleTranslationAsync(sender: Player, originalMessage: String) {
-        Threads.daemon("translator-${sender.id}") {
+        translationScope.launch {
             try {
-                // 使用管理器进行翻译
-                val translatedText = TranslationManager.translate(originalMessage)
+                val translatedText = TranslationManager.translateAsync(originalMessage)
 
                 Core.app.post {
                     val formattedMessage = "${sender.name} [#80b4ff][翻][white]: $translatedText"
                     Vars.player.sendMessage(formattedMessage)
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 Log.err("翻译失败", e)
                 Core.app.post {
@@ -184,13 +193,21 @@ class AutoTranslate: Mod() {
         chatfield.setTextFieldListener { textField, _ ->
             val text = textField.text
             if (text.length > MIN_TEXT_LENGTH && text.endsWith(TRIGGER_SUFFIX) && !text.isBlank()) {
-                Threads.daemon("auto-translate-${threadCounter.incrementAndGet()}") {
+                chatInputJob?.cancel()
+                chatInputJob = translationScope.launch {
                     try {
-                        val translated = TranslationManager.translate(text.trim(), TranslationManager.targetLanguage)
+                        val translated = TranslationManager.translateAsync(
+                            text.trim(),
+                            TranslationManager.targetLanguage
+                        )
                         Core.app.post {
-                            textField.text = translated
-                            Vars.ui.chatfrag.updateCursor()
+                            if (textField.text == text) {
+                                textField.text = translated
+                                Vars.ui.chatfrag.updateCursor()
+                            }
                         }
+                    } catch (e: CancellationException) {
+                        throw e
                     } catch (e: Exception) {
                         Log.err("[AutoTranslate] 聊天输入翻译失败。", e)
                     }

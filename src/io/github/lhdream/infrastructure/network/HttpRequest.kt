@@ -1,6 +1,6 @@
-package io.github.lhdream.expansion
+package io.github.lhdream.infrastructure.network
 
-import io.github.lhdream.factory.TlsPatcherSocketFactory
+import io.github.lhdream.infrastructure.network.TlsPatcherSocketFactory
 import javax.net.ssl.HttpsURLConnection
 
 

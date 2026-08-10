@@ -1,12 +1,12 @@
-package io.github.lhdream.engines
+package io.github.lhdream.data.remote.translation
 
 import arc.util.Http
 import arc.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import io.github.lhdream.core.TranslationEngine
-import io.github.lhdream.expansion.HttpRequest
-import io.github.lhdream.expansion.withTls12And13
+import io.github.lhdream.domain.translation.TranslationEngine
+import io.github.lhdream.infrastructure.network.HttpRequest
+import io.github.lhdream.infrastructure.network.withTls12And13
 import java.io.IOException
 
 object MicrosoftFreeEngine : TranslationEngine {

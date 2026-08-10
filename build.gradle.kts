@@ -10,7 +10,7 @@ plugins {
 val mindustryVersion: String by extra("v146")
 val sdkRoot: String? by extra { System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") }
 
-sourceSets.main.get().java.srcDirs("src")
+sourceSets.main.get().java.srcDirs("src/io")
 
 repositories {
     mavenCentral()
@@ -23,12 +23,13 @@ dependencies {
     compileOnly("com.github.Anuken.Mindustry:core:$mindustryVersion")
     testImplementation("com.github.Anuken.Arc:arc-core:${mindustryVersion}")
     testImplementation("com.github.Anuken.Mindustry:core:${mindustryVersion}")
-    val langchain4jVersion = "1.13.0"
-    implementation("dev.langchain4j:langchain4j:$langchain4jVersion")
-    implementation("dev.langchain4j:langchain4j-open-ai:$langchain4jVersion")
-
     implementation("com.google.code.gson:gson:2.10.1")
+    val coroutinesVersion = "1.6.4"
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
     implementation(kotlin("stdlib-jdk8"))
+
+    testImplementation(kotlin("test"))
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutinesVersion")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {

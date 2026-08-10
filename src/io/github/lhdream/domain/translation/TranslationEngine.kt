@@ -1,4 +1,4 @@
-package io.github.lhdream.core
+package io.github.lhdream.domain.translation
 
 interface TranslationEngine {
 

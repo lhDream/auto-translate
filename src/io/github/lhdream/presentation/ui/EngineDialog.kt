@@ -1,11 +1,11 @@
-package io.github.lhdream.ui
+package io.github.lhdream.presentation.ui
 
 import arc.Core
 import arc.scene.ui.ButtonGroup
 import arc.scene.ui.ScrollPane
 import arc.scene.ui.TextButton
 import arc.scene.ui.layout.Table
-import io.github.lhdream.core.TranslationManager
+import io.github.lhdream.domain.translation.TranslationManager
 import mindustry.ui.Styles
 import mindustry.ui.dialogs.BaseDialog
 

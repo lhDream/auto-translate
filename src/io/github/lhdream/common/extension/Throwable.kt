@@ -1,4 +1,4 @@
-package io.github.lhdream.expansion
+package io.github.lhdream.common.extension
 
 import java.io.PrintWriter
 import java.io.StringWriter
