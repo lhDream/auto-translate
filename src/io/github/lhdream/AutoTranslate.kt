@@ -18,6 +18,12 @@ import mindustry.ui.Styles
 
 class AutoTranslate: Mod() {
 
+    companion object {
+        private const val TRIGGER_SUFFIX = "   "
+        private const val MIN_TEXT_LENGTH = 3
+        private val threadCounter = java.util.concurrent.atomic.AtomicInteger(0)
+    }
+
     init{
         Log.info("Loaded auto-translate mod.")
     }
@@ -164,22 +170,31 @@ class AutoTranslate: Mod() {
         }
     }
 
-    private fun buildChatListener(){
-        val javaClass = Vars.ui.chatfrag.javaClass
-        val nameField = javaClass.getDeclaredField("chatfield")
-        nameField.isAccessible = true
-        val chatfield = nameField.get(Vars.ui.chatfrag) as TextField
-        chatfield.setTextFieldListener { textField, c ->
+    private fun buildChatListener() {
+        val chatfield: TextField
+        try {
+            val field = Vars.ui.chatfrag.javaClass.getDeclaredField("chatfield")
+            field.isAccessible = true
+            chatfield = field.get(Vars.ui.chatfrag) as TextField
+        } catch (e: Exception) {
+            Log.warn("[AutoTranslate] 无法访问 chatfield，聊天框翻译功能已禁用。", e)
+            return
+        }
+
+        chatfield.setTextFieldListener { textField, _ ->
             val text = textField.text
-            if(text.length > 3 && text.endsWith("   ")){
-                Threads.daemon("translator-local" + System.currentTimeMillis()) {
-                    val translateText = TranslationManager.translate(text.trim(), TranslationManager.targetLanguage)
-                    Core.app.post {
-                        textField.text = translateText
-                        Vars.ui.chatfrag.updateCursor()
+            if (text.length > MIN_TEXT_LENGTH && text.endsWith(TRIGGER_SUFFIX) && !text.isBlank()) {
+                Threads.daemon("auto-translate-${threadCounter.incrementAndGet()}") {
+                    try {
+                        val translated = TranslationManager.translate(text.trim(), TranslationManager.targetLanguage)
+                        Core.app.post {
+                            textField.text = translated
+                            Vars.ui.chatfrag.updateCursor()
+                        }
+                    } catch (e: Exception) {
+                        Log.err("[AutoTranslate] 聊天输入翻译失败。", e)
                     }
                 }
-
             }
         }
     }

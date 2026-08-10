@@ -15,11 +15,9 @@ object TranslationManager {
     val engines = mutableMapOf<String, TranslationEngine>()
     private lateinit var activeEngine: TranslationEngine
 
-    // 目标语言也可以从设置中读取
     val mainLanguage: String
         get() = Core.settings.getString("translation-main-lang", "zh")
 
-    // 目标语言也可以从设置中读取
     val targetLanguage: String
         get() = Core.settings.getString("translation-target-lang", "en")
 
@@ -34,7 +32,7 @@ object TranslationManager {
         register(TencentEngine)
         register(OpenAIEngine)
 
-        // 从设置中加载用户选择的引擎，默认为 "none"
+        // 从设置中加载用户选择的引擎，默认为 "MicrosoftFreeEngine"
         val selectedEngineId = Core.settings.getString("default-translator", MicrosoftFreeEngine.id)
         activeEngine = engines[selectedEngineId] ?: NoneEngine // 如果找不到，则使用 NoneEngine
         Log.info("[AutoTranslate] 当前翻译引擎: ${activeEngine.displayName}")
