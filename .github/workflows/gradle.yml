@@ -7,19 +7,89 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v7
-    - name: Set up PATH
-      run: |
-        echo "${ANDROID_HOME}/build-tools/34.0.0" >> $GITHUB_PATH
-    - name: Set up JDK 17
-      uses: actions/setup-java@v5
-      with:
-        java-version: 17
-        distribution: 'temurin'
-    - name: Build mod jar
-      run: ./gradlew deploy
-    - name: Upload built jar file
-      uses: actions/upload-artifact@v4
-      with:
-        name: ${{ github.event.repository.name }}
-        path: build/libs/${{ github.event.repository.name }}.jar
+      - uses: actions/checkout@v7
+      - name: Set up PATH
+        run: |
+          echo "${ANDROID_HOME}/build-tools/34.0.0" >> $GITHUB_PATH
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
+        with:
+          java-version: 17
+          distribution: 'temurin'
+      - name: Build mod jar
+        run: ./gradlew deploy
+
+      # 产出两个变体：v7 包 minGameVersion 136，v8 包 minGameVersion 147。
+      # 两个包除 mod.hjson 中该字段外内容完全一致。
+      # 做法：复制原 jar，只替换 jar 内的 mod.hjson 条目，其余条目原样保留，
+      # 避免整包重压缩带来路径/权限上的偏差。
+      - name: Build v7 / v8 variants
+        run: |
+          set -euo pipefail
+          NAME="${{ github.event.repository.name }}"
+          SRC="build/libs/${NAME}.jar"
+          test -f "$SRC" || { echo "::error::missing $SRC"; exit 1; }
+
+          build_variant() {
+            local build="$1" label="$2"
+            local out="build/libs/${NAME}-${label}.jar"
+            local root
+            root="$(pwd)"
+            cp "$SRC" "$out"
+
+            local tmp
+            tmp="$(mktemp -d)"
+            unzip -p "$out" mod.hjson > "$tmp/mod.hjson"
+            sed -i -E "s/^minGameVersion:.*/minGameVersion: ${build}/" "$tmp/mod.hjson"
+            ( cd "$tmp" && zip -q "${root}/${out}" mod.hjson )
+            rm -rf "$tmp"
+
+            echo "--- ${out} ---"
+            unzip -p "$out" mod.hjson | grep -E '^(version|minGameVersion):'
+          }
+
+          build_variant 136 v7
+          build_variant 147 v8
+
+          echo "=== produced jars ==="
+          ls -lh build/libs/*.jar
+
+      - name: Verify variant jars
+        run: |
+          set -euo pipefail
+          NAME="${{ github.event.repository.name }}"
+          for pair in "v7 136" "v8 147"; do
+            set -- $pair
+            jar="build/libs/${NAME}-$1.jar"
+            ver="$2"
+            test -f "$jar" || { echo "::error::missing $jar"; exit 1; }
+
+            # mod.hjson 必须是根目录条目
+            unzip -Z1 "$jar" | grep -qx "mod.hjson" || {
+              echo "::error::$jar has no root-level mod.hjson"; unzip -Z1 "$jar" | head; exit 1; }
+
+            got=$(unzip -p "$jar" mod.hjson | sed -n 's/^minGameVersion:[[:space:]]*//p' | tr -d '\r')
+            test "$got" = "$ver" || { echo "::error::$jar minGameVersion=$got expected $ver"; exit 1; }
+
+            # 版本号应为 0.2.0
+            mver=$(unzip -p "$jar" mod.hjson | sed -n 's/^version:[[:space:]]*//p' | tr -d '\r')
+            test "$mver" = "0.2.0" || { echo "::error::$jar version=$mver expected 0.2.0"; exit 1; }
+
+            # 桌面 + Android 合并产物应含 classes.dex 与主类
+            unzip -Z1 "$jar" | grep -qx "classes.dex" || { echo "::error::$jar missing classes.dex"; exit 1; }
+            unzip -Z1 "$jar" | grep -qx "io/github/lhdream/AutoTranslate.class" || {
+              echo "::error::$jar missing main class"; exit 1; }
+
+            echo "OK: $jar (version=$mver, minGameVersion=$got)"
+          done
+
+      - name: Upload v7 jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.repository.name }}-v7
+          path: build/libs/${{ github.event.repository.name }}-v7.jar
+      - name: Upload v8 jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ github.event.repository.name }}-v8
+          path: build/libs/${{ github.event.repository.name }}-v8.jar

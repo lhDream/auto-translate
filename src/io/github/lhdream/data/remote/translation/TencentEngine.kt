@@ -18,7 +18,6 @@ object TencentEngine : TranslationEngine {
     override val displayName = "Tencent Translate"
 
     private val gson = Gson()
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd").apply { timeZone = TimeZone.getTimeZone("UTC") }
 
     private data class TencentRequest(
         val SourceText: String,
@@ -184,7 +183,9 @@ object TencentEngine : TranslationEngine {
             .toString()
 
         // 2. 拼接待签名字符串
-        val requestDate = dateFormat.format(Date(timestamp.toLong() * 1000))
+        val requestDate = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }.format(Date(timestamp.toLong() * 1000))
         val credentialScope = "$requestDate/$service/tc3_request"
         val hashedCanonicalRequest = sha256Hex(canonicalRequest)
 

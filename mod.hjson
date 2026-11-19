@@ -14,7 +14,7 @@ main: "io.github.lhdream.AutoTranslate"
 description: "A Mindustry auto translate mod."
 
 #the mod version
-version: 1.0
+version: 0.2.0
 
 #the minimum game build required to run this mod
 minGameVersion: 136

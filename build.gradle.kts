@@ -1,6 +1,6 @@
 import java.io.File
 
-version = "1.0"
+version = "0.2.0"
 
 plugins {
     kotlin("jvm") version "1.6.0"
